@@ -120,6 +120,7 @@ class Visualizer:
     ) -> None:
         """
         Display multiple images in a single figure with given titles.
+        :param file_name: filename(path) to save the plot into.
         :param images: List of images as numpy arrays.
         :param titles: List of titles for each subplot.
         :param cols: Number of columns in the subplot grid.
