@@ -80,6 +80,7 @@ class ImageUtils:
         """Compute the normalized magnitude frequency spectrum for display."""
         fourier_transform = np.fft.fft2(image)
         magnitude_spectrum = np.abs(fourier_transform)
+
         # Use log scaling to compress dynamic range
         log_spectrum = np.log1p(magnitude_spectrum)
         return ImageUtils.normalize_image(log_spectrum)
@@ -175,7 +176,7 @@ def main():
     # -------------------------------------------------------------------------------
     print("=" * 50)
     print(f"{BColors.WARNING}{BColors.BOLD}Padding Image ....{BColors.ENDC}{BColors.ENDC}")
-    target_size = [2048, 2048]  # 1024 * 2
+    target_size = [1026 * 2, 1026 * 2]  # 1026 * 2
     padded_image = ImageUtils.pad_image(
         image=image_array,
         padded_image_size=target_size,
@@ -215,9 +216,7 @@ def main():
     # -------------------------------------------------------------------------------
     print("=" * 50)
     print(f"{BColors.WARNING}{BColors.BOLD}Creating Gaussian Filter ....{BColors.ENDC}{BColors.ENDC}")
-    # For filtering, we work with the Fourier transform of the centered image.
-    F = np.fft.fft2(centered_image_freq)
-    gaussian_filter = ImageFilter.gaussian_lowpass_filter(shape=F.shape, sigma=20)
+    gaussian_filter = ImageFilter.gaussian_lowpass_filter(shape=centered_image_freq.shape, sigma=20)
     gaussian_filter_path = os.path.join(base_dir, "(e)gaussian_filter.tiff")
     ImageUtils.save_image(image_array=(gaussian_filter * 255), filepath=gaussian_filter_path)
     print(f"{BColors.OkGREEN}{BColors.BOLD}\nGaussian Filter Created.{BColors.ENDC}{BColors.ENDC}")
@@ -231,7 +230,9 @@ def main():
     filtered_complex = np.fft.ifft2(F_filtered)
     filtered_image = np.real(filtered_complex)
     # Undo the centering multiplication (since center_frequency_spectrum is its own inverse)
-    final_image_padded = ImageUtils.center_frequency_spectrum(image=filtered_image)
+    final_image_padded = ImageUtils.center_frequency_spectrum(
+        image=filtered_image
+    )
 
     final_image_padded_path = os.path.join(base_dir, "(g)final_image_padded.tiff")
     ImageUtils.save_image(image_array=final_image_padded, filepath=final_image_padded_path)
